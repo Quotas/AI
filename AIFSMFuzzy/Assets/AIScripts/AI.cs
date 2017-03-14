@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using DotFuzzy;
-using Stateless;
+
 
 public class AI
 {
@@ -13,25 +10,58 @@ public class AI
 
     FuzzyEngine fuzzyEngine;
 
-    List<Need> AINeedsList;
+    Dictionary<string, Need> AINeedsList;
 
-    public AI(List<Need> needs)
+
+
+    public AI()
     {
-
-
         fuzzyEngine = new FuzzyEngine();
 
-        AINeedsList = needs;
+        AINeedsList =  new Dictionary<string, Need>();
+
+    }
+
+    public void registerNeed(Need need)
+    {
+        AINeedsList.Add(need.Name, need);
+
+    }
+
+    public Need getNeed(string name) {
+
+
+        Need tmp = null;
+
+        if (AINeedsList.TryGetValue(name, out tmp)) {
+
+            return tmp;
+        }
+
+        return null; 
 
 
     }
 
-
-    public List<Need> getOrderedNeeds()
+    public void Update()
     {
 
-        return AINeedsList;
+        foreach (KeyValuePair<string, Need> need in AINeedsList)
+        {
+
+            need.Value.Update(1f);
+
+
+        }
+
+        if (ActionPriorityList.ActionQueued) {
+
+            ActionPriorityList.Fire();
+
+
+        }
 
     }
+
 
 }
