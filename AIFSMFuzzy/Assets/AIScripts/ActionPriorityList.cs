@@ -8,13 +8,14 @@ using System;
 public static class ActionPriorityList
 {
 
-    public static List<Action> ActionList = new List<Action>();
+    public enum State { PENDING, SUCCESSS, FAIL };
+    public static List<Need.InternalNeedMethod> ActionList = new List<Need.InternalNeedMethod>();
     public static bool ActionQueued = false;
 
 
 
 
-    public static void Add(ref Action method)
+    public static void Add(Need.InternalNeedMethod method)
     {
 
         ActionList.Add(method);
@@ -29,10 +30,14 @@ public static class ActionPriorityList
 
         if (ActionList.Count != 0)
         {
-            ActionList.First().Invoke();
-        }
 
-        ActionList.Remove(ActionList.First());
+            if (ActionList.First()() == ProcessState.SUCCESS)
+            {
+                ActionList.Remove(ActionList.First());
+
+
+            }
+        }
 
 
         if (ActionList.Count == 0)

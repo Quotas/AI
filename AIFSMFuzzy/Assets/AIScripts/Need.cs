@@ -6,6 +6,8 @@ using System;
 using Stateless;
 
 
+
+
 public class Need
 {
 
@@ -35,11 +37,13 @@ public class Need
     private float _maxValue;
     private float _scale;
 
-    private Action _methodTask;
+    public delegate ProcessState InternalNeedMethod();
+
+    public InternalNeedMethod method;
 
     //StateMachine<State, Trigger>.TriggerWithParameters<int> setThresholdTrigger;
 
-    public Need(string name, Action task, float min, float max, float scale = 1)
+    public Need(string name, Func<ProcessState> task, float min, float max, float scale = 1)
     {
 
         state = new StateMachine<State, Trigger>(State.Fufilled);
@@ -48,10 +52,10 @@ public class Need
             .Permit(Trigger.OnMinValueReached, State.Unfufilled);
 
         state.Configure(State.Unfufilled)
-            .OnEntry(t => ActionPriorityList.Add(ref _methodTask))
+            .OnEntry(t => ActionPriorityList.Add(method))
             .Permit(Trigger.OnMaxValueReached, State.Fufilled);
 
-        _methodTask = task;
+        method = new InternalNeedMethod(task);
         _minValue = min;
         _maxValue = max;
         _scale = scale;
@@ -73,9 +77,9 @@ public class Need
                 Value -= interval * _scale;
 
             }
-            else if (Value == _minValue)
+            else if (Value <= _minValue)
             {
-
+                Value = _minValue;
                 state.Fire(Trigger.OnMinValueReached);
             }
 
@@ -84,9 +88,9 @@ public class Need
         else if (state.IsInState(State.Unfufilled))
         {
 
-            if (Value == _maxValue)
+            if (Value >= _maxValue)
             {
-
+                Value = _maxValue;
                 state.Fire(Trigger.OnMaxValueReached);
 
             }
