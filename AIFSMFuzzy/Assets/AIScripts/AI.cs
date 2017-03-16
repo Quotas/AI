@@ -55,7 +55,7 @@ public class AI
         foreach (KeyValuePair<string, Need> need in sortedDict)
         {
 
-            Debug.Log(need.Value.Name);
+            Debug.Log(need.Value.Name + " :" + need.Value.Priority );
 
         }
     }

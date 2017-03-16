@@ -37,13 +37,15 @@ public class Need
     private float _maxValue;
     private float _scale;
 
+    private Utility utility;
+
     public delegate ProcessState InternalNeedMethod();
 
     public InternalNeedMethod method;
 
     //StateMachine<State, Trigger>.TriggerWithParameters<int> setThresholdTrigger;
 
-    public Need(string name, Func<ProcessState> task, float min, float max, float scale = 1)
+    public Need(string name, Func<ProcessState> task, Utility u, float min, float max, float scale = 1)
     {
 
         state = new StateMachine<State, Trigger>(State.Fufilled);
@@ -59,6 +61,8 @@ public class Need
         _minValue = min;
         _maxValue = max;
         _scale = scale;
+
+        utility = u;
 
         Value = max;
         Name = name;
@@ -83,6 +87,7 @@ public class Need
                 state.Fire(Trigger.OnMinValueReached);
             }
 
+            Priority = (Mathf.FloorToInt(Value * .1f) * -1 ) + 10; 
 
         }
         else if (state.IsInState(State.Unfufilled))
@@ -94,6 +99,8 @@ public class Need
                 state.Fire(Trigger.OnMaxValueReached);
 
             }
+
+            Priority = (Mathf.FloorToInt(Value * .1f) * -1) + 10;
 
         }
 

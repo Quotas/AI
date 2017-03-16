@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine;
 
 
 
@@ -30,22 +31,36 @@ public static class ActionPriorityList
 
         if (ActionList.Count != 0)
         {
+            
 
-            if (ActionList.First()() == ProcessState.SUCCESS)
-            {
-                ActionList.Remove(ActionList.First());
+                var state = ActionList.First()();
 
+                switch (state)
+                {
+                    case ProcessState.SUCCESS:
+                        ActionList.Remove(ActionList.First());
+                        break;
+                    case ProcessState.PENDING:
+                        //
+                        break;
+                    case ProcessState.FAILURE:
+                        Debug.Log("Failure on event stack at " + ActionList.First());
+                        break;
 
+                }
+                
             }
-        }
-
-
-        if (ActionList.Count == 0)
-        {
+        
+        else {
 
             ActionQueued = false;
 
         }
 
+
+        
+
     }
+
+    
 }

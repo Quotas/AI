@@ -11,11 +11,16 @@ public class Entity : MonoBehaviour
 {
 
 
-    private int health;
     private Need hunger;
     private Need stamina;
     private Need thirst;
     private Need hygine;
+
+    private Utility bath;
+    private Utility refrigerator;
+    private Utility bed;
+
+
 
     private AI ai;
 
@@ -25,11 +30,16 @@ public class Entity : MonoBehaviour
 
         ai = new AI();
 
+        bath = GameObject.Find("Bath").GetComponent<Utility>();
+        refrigerator = GameObject.Find("Refrigerator").GetComponent<Utility>();
+        bed = GameObject.Find("Bed").GetComponent<Utility>();
 
-        hunger = new Need("Hunger", eat, 0f, 100f);
-        stamina = new Need("Stamina", rest, 0f, 100f, 2f);
-        thirst = new Need("Thirst", drink, 0f, 100f, 0.2f);
-        hygine = new Need("Hygine", shower, 0f, 100f, 0.5f);
+
+
+        hunger = new Need("Hunger", eat, refrigerator, 0f, 100f);
+        stamina = new Need("Stamina", rest, bed, 0f, 100f, 2f);
+        thirst = new Need("Thirst", drink, refrigerator, 0f, 100f, 0.2f);
+        hygine = new Need("Hygine", shower, bath, 0f, 100f, 0.5f);
 
         ai.registerNeed(hunger);
         ai.registerNeed(stamina);
@@ -46,7 +56,15 @@ public class Entity : MonoBehaviour
 
         ai.Update();
 
+        if (Input.GetKeyDown(KeyCode.R)) {
+
+            ai.Sort();
+
+        }
+
     }
+
+
 
 
     //all delgate need functions must return a ProcessState enum
@@ -71,7 +89,7 @@ public class Entity : MonoBehaviour
 
         Debug.Log("I need to drink something.");
 
-        return ProcessState.SUCCESS;
+        return ProcessState.PENDING;
 
 
     }
