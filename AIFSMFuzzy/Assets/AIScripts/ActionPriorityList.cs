@@ -14,6 +14,11 @@ public static class ActionPriorityList
     public static bool ActionQueued = false;
 
 
+    //store a reference to our default action so that entities can change their default action or something
+    //This is necessary since all the logic for task execution is stored in entity
+    private static Func<ProcessState> defaultAction;
+
+
 
 
     public static void Add(Need.InternalNeedMethod method)
@@ -25,42 +30,54 @@ public static class ActionPriorityList
 
     }
 
+    public static void registerDefaultAction(Func<ProcessState> method)
+    {
+
+        defaultAction = method;
+
+    }
+
+
 
     public static void Fire()
     {
 
         if (ActionList.Count != 0)
         {
-            
 
-                var state = ActionList.First()();
 
-                switch (state)
-                {
-                    case ProcessState.SUCCESS:
-                        ActionList.Remove(ActionList.First());
-                        break;
-                    case ProcessState.PENDING:
-                        //
-                        break;
-                    case ProcessState.FAILURE:
-                        Debug.Log("Failure on event stack at " + ActionList.First());
-                        break;
+            var state = ActionList.First()();
 
-                }
-                
+            switch (state)
+            {
+                case ProcessState.SUCCESS:
+                    ActionList.Remove(ActionList.First());
+                    break;
+                case ProcessState.PENDING:
+                    //
+                    break;
+                case ProcessState.FAILURE:
+                    Debug.Log("Failure on event stack at " + ActionList.First());
+                    break;
+
             }
-        
-        else {
-
-            ActionQueued = false;
 
         }
 
+        //if our need action list is empty do our default action
 
-        
+        else
+        {
+
+            defaultAction();
+        }
+
+
+
 
     }
 
-    
+
+
+
 }

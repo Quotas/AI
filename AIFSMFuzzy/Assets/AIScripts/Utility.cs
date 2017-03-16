@@ -1,16 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Utility : MonoBehaviour {
+public class Utility : MonoBehaviour
+{
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public bool entityNear = false;
+
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+
+        if (collision.gameObject.name == "Entity")
+        {
+            Debug.Log("Collision!");
+            entityNear = true;
+
+
+        }
+
+
+    }
 }

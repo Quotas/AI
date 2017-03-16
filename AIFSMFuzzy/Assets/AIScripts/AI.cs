@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using DotFuzzy;
 using UnityEngine;
@@ -8,7 +7,7 @@ using UnityEngine;
 public class AI
 {
 
-    FuzzyEngine fuzzyEngine;
+    public FuzzyEngine fuzzyEngine;
 
     Dictionary<string, Need> AINeedsList;
 
@@ -55,7 +54,15 @@ public class AI
         foreach (KeyValuePair<string, Need> need in sortedDict)
         {
 
-            Debug.Log(need.Value.Name + " :" + need.Value.Priority );
+            Debug.Log(need.Value.Name + " :" + need.Value.Priority);
+
+        }
+
+        var fuzzysortedDict = from entry in AINeedsList orderby entry.Value.FuzzyPriorty ascending select entry;
+        foreach (KeyValuePair<string, Need> need in sortedDict)
+        {
+
+            Debug.Log(need.Value.Name + " :" + need.Value.FuzzyPriorty);
 
         }
     }

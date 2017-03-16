@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using Stateless;
+using DotFuzzy;
 
 
 
@@ -31,11 +29,14 @@ public class Need
 
     public string Name { get; set; }
     public int Priority { get; set; }
+    public float FuzzyPriorty { get; set; }
     public float Value { get; set; }
 
     private float _minValue;
     private float _maxValue;
     private float _scale;
+
+    public FuzzyEngine fuzzyengine;
 
     private Utility utility;
 
@@ -43,7 +44,6 @@ public class Need
 
     public InternalNeedMethod method;
 
-    //StateMachine<State, Trigger>.TriggerWithParameters<int> setThresholdTrigger;
 
     public Need(string name, Func<ProcessState> task, Utility u, float min, float max, float scale = 1)
     {
@@ -68,10 +68,38 @@ public class Need
         Name = name;
         Priority = 0;
 
+        fuzzyengine = new FuzzyEngine();
+
+
+        LinguisticVariable priority = new LinguisticVariable("Priority");
+        priority.MembershipFunctionCollection.Add(new MembershipFunction("High", 0, 25, 25, 50));
+        priority.MembershipFunctionCollection.Add(new MembershipFunction("Low", 50, 75, 75, 100));
+
+
+        fuzzyengine.LinguisticVariableCollection.Add(priority);
+        fuzzyengine.Consequent = "Priority";
+
     }
+
+    public void newRule(FuzzyRule rule)
+    {
+
+        fuzzyengine.FuzzyRuleCollection.Add(rule);
+
+
+
+    }
+
 
     public void Update(float interval)
     {
+
+
+        FuzzyPriorty = (float)fuzzyengine.Defuzzify();
+
+
+
+
         if (state.IsInState(State.Fufilled))
         {
 
@@ -87,7 +115,7 @@ public class Need
                 state.Fire(Trigger.OnMinValueReached);
             }
 
-            Priority = (Mathf.FloorToInt(Value * .1f) * -1 ) + 10; 
+            Priority = (Mathf.FloorToInt(Value * .1f) * -1) + 10;
 
         }
         else if (state.IsInState(State.Unfufilled))
