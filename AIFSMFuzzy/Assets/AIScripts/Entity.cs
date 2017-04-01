@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Diagnostics;
+using System.Reflection;
 using DotFuzzy;
 
 
@@ -20,10 +22,12 @@ public class Entity : MonoBehaviour
     private Utility bed;
     private Utility task;
 
-    LinguisticVariable fhunger = new LinguisticVariable("Hunger");
-    LinguisticVariable fstamina = new LinguisticVariable("Stamina");
-    LinguisticVariable fthirst = new LinguisticVariable("Thirst");
-    LinguisticVariable fhygine = new LinguisticVariable("Hygine");
+    LinguisticVariable fhunger;
+    LinguisticVariable fstamina;
+    LinguisticVariable fthirst;
+    LinguisticVariable fhygine;
+
+    private int score;
 
 
     private AI ai;
@@ -32,7 +36,14 @@ public class Entity : MonoBehaviour
     void Start()
     {
 
+        score = 0;
+
         ai = new AI();
+
+        fhunger = new LinguisticVariable("Hunger");
+        fstamina = new LinguisticVariable("Stamina");
+        fthirst = new LinguisticVariable("Thirst");
+        fhygine = new LinguisticVariable("Hygine");
 
         bath = GameObject.Find("Bath").GetComponent<Utility>();
         refrigerator = GameObject.Find("Refrigerator").GetComponent<Utility>();
@@ -40,10 +51,10 @@ public class Entity : MonoBehaviour
         task = GameObject.Find("Task").GetComponent<Utility>();
 
 
-        hunger = new Need("Hunger", eat, refrigerator, 0f, 100f);
-        stamina = new Need("Stamina", rest, bed, 0f, 100f, 2f);
-        thirst = new Need("Thirst", drink, refrigerator, 0f, 100f, 0.2f);
-        hygine = new Need("Hygine", shower, bath, 0f, 100f, 0.5f);
+        hunger = new Need("Hunger", eat, refrigerator, 0f, 100f, 0.1f);
+        stamina = new Need("Stamina", rest, bed, 0f, 100f, .2f);
+        thirst = new Need("Thirst", drink, refrigerator, 0f, 100f, 0.02f);
+        hygine = new Need("Hygine", shower, bath, 0f, 100f, 0.05f);
 
         //FuzzyLogicEngine setup goes here
         fhunger.MembershipFunctionCollection.Add(new MembershipFunction("Hungry", 0, 0, 20, 40));
@@ -135,6 +146,7 @@ public class Entity : MonoBehaviour
             else
             {
 
+                UnityEngine.Debug.Log("Processing: Hunger");
                 return ProcessState.PENDING;
 
             }
@@ -164,7 +176,7 @@ public class Entity : MonoBehaviour
             }
             else
             {
-
+                UnityEngine.Debug.Log("Processing: Bed");
                 return ProcessState.PENDING;
 
             }
@@ -195,7 +207,7 @@ public class Entity : MonoBehaviour
             }
             else
             {
-
+                UnityEngine.Debug.Log("Processing: Thirst");
                 return ProcessState.PENDING;
 
             }
@@ -228,7 +240,7 @@ public class Entity : MonoBehaviour
             }
             else
             {
-
+                UnityEngine.Debug.Log("Processing: Bath");
                 return ProcessState.PENDING;
 
             }
@@ -250,14 +262,24 @@ public class Entity : MonoBehaviour
         else
         {
 
+            UnityEngine.Debug.Log("Processing: Default Task");
+            score += 1;
             return ProcessState.PENDING;
 
         }
-
-        return ProcessState.PENDING;
-
+        return ProcessState.SUCCESS;
 
 
+
+    }
+
+
+    public string GetCurrentMethod()
+    {
+        StackTrace st = new StackTrace();
+        StackFrame sf = st.GetFrame(1);
+
+        return sf.GetMethod().Name;
     }
 
 

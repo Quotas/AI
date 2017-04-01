@@ -80,13 +80,10 @@ public class AI
 
         }
 
-        if (ActionPriorityList.ActionQueued)
-        {
-
-            ActionPriorityList.Fire();
+        ActionPriorityList.Fire();
 
 
-        }
+
 
     }
 

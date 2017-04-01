@@ -11,11 +11,27 @@ public class Utility : MonoBehaviour
 
         if (collision.gameObject.name == "Entity")
         {
-            Debug.Log("Collision!");
+
             entityNear = true;
 
 
         }
+
+
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+
+        if (collision.gameObject.name == "Entity")
+        {
+
+            entityNear = false;
+
+
+        }
+
+
 
 
     }
