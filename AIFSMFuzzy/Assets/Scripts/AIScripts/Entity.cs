@@ -12,13 +12,13 @@ public class Entity : MonoBehaviour
 {
 
     public bool fuzzy;
-    public bool destinationReached;
+    public bool destinationReached = false;
 
 
-    private Need hunger;
-    private Need stamina;
-    private Need thirst;
-    private Need hygine;
+    public Need hunger;
+    public Need stamina;
+    public Need thirst;
+    public Need hygine;
 
     private Utility bath;
     private Utility refrigerator;
@@ -32,14 +32,16 @@ public class Entity : MonoBehaviour
 
     [SerializeField]
     public List<Node> nodes;
-    private int score;
+    public int score;
 
 
-    private AI ai;
+    public AI ai;
 
 
     void Start()
     {
+
+
 
         score = 0;
 
@@ -98,12 +100,14 @@ public class Entity : MonoBehaviour
         hygine.newRule(new FuzzyRule("IF (Hygine IS Clean) THEN Priorty IS Low"));
 
 
-
+        //register the Needs with our AI for need sorting and for need searching
         ai.registerNeed(hunger);
         ai.registerNeed(stamina);
         ai.registerNeed(thirst);
         ai.registerNeed(hygine);
 
+
+        //register the default task for the entity with the ActionPriorityList
         ActionPriorityList.registerDefaultAction(Task);
 
 
@@ -129,21 +133,25 @@ public class Entity : MonoBehaviour
 
         }
 
-        if (nodes.Count == 0 && destinationReached) {
+        if (nodes.Count == 0 && destinationReached)
+        {
 
             nodes = FindObjectsOfType<Node>().OrderBy(node => node.order).ToList<Node>();
         }
 
     }
 
-    public Node FindNearestNode() {
+    public Node FindNearestNode()
+    {
 
-        Node  closestNode = null;
-        float closestDistance = 0;
+        Node closestNode = null;
+        float closestDistance = Vector3.Distance(transform.position, nodes[0].transform.position);
 
-        foreach (Node node in nodes) {
+        foreach (Node node in nodes)
+        {
             var distance = Vector3.Distance(transform.position, node.transform.position);
-            if (distance > closestDistance) {
+            if (distance <= closestDistance)
+            {
 
                 closestNode = node;
 
@@ -153,22 +161,31 @@ public class Entity : MonoBehaviour
 
         return closestNode;
 
-        
 
-        
+
+
     }
 
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
 
-        if (collision.transform.tag == "Node") {
+        if (collision.transform.tag == "Node")
+        {
+            if (nodes.Count != 0)
+            {
+                nodes.Remove(collision.gameObject.GetComponent<Node>());
 
-            nodes.Remove(collision.gameObject.GetComponent<Node>());
+            }
+
+
 
         }
-            
+
+
     }
+
+
     //all delgate need functions must return a ProcessState enum
     ProcessState eat()
     {
@@ -176,10 +193,22 @@ public class Entity : MonoBehaviour
         if (refrigerator.entityNear != true)
         {
             var nextPoint = Vector3.one;
-            if (nodes.Count != 0) {
-                nextPoint = Vector3.Distance(transform.position, refrigerator.transform.position) < Vector3.Distance(transform.position, FindNearestNode().transform.position) ? refrigerator.transform.position : FindNearestNode().transform.position;
-            }
-            else {
+            if (nodes.Count != 0)
+                if (Vector3.Distance(transform.position, FindNearestNode().transform.position) >
+                    Vector3.Distance(transform.position, task.transform.position))
+                {
+
+                    nextPoint = refrigerator.transform.position;
+
+                }
+                else
+                {
+
+                    nextPoint = FindNearestNode().transform.position;
+
+                }
+            else
+            {
                 nextPoint = refrigerator.transform.position;
             }
             transform.position = Vector3.MoveTowards(transform.position, nextPoint, Time.deltaTime);
@@ -202,7 +231,7 @@ public class Entity : MonoBehaviour
             }
 
         }
-
+        UnityEngine.Debug.Log("Pending: Hunger");
         return ProcessState.PENDING;
 
     }
@@ -212,8 +241,26 @@ public class Entity : MonoBehaviour
 
         if (!bed.entityNear)
         {
+            var nextPoint = Vector3.one;
+            if (nodes.Count != 0)
+                if (Vector3.Distance(transform.position, FindNearestNode().transform.position) >
+                    Vector3.Distance(transform.position, task.transform.position))
+                {
 
-            transform.position = Vector3.MoveTowards(transform.position, bed.transform.position, Time.deltaTime);
+                    nextPoint = bed.transform.position;
+
+                }
+                else
+                {
+
+                    nextPoint = FindNearestNode().transform.position;
+
+                }
+            else
+            {
+                nextPoint = bed.transform.position;
+            }
+            transform.position = Vector3.MoveTowards(transform.position, nextPoint, Time.deltaTime);
 
         }
         else
@@ -232,7 +279,7 @@ public class Entity : MonoBehaviour
             }
 
         }
-
+        UnityEngine.Debug.Log("Pending: Bed");
         return ProcessState.PENDING;
 
     }
@@ -243,8 +290,26 @@ public class Entity : MonoBehaviour
 
         if (!refrigerator.entityNear)
         {
+            var nextPoint = Vector3.one;
+            if (nodes.Count != 0)
+                if (Vector3.Distance(transform.position, FindNearestNode().transform.position) >
+                    Vector3.Distance(transform.position, task.transform.position))
+                {
 
-            transform.position = Vector3.MoveTowards(transform.position, refrigerator.transform.position, Time.deltaTime);
+                    nextPoint = refrigerator.transform.position;
+
+                }
+                else
+                {
+
+                    nextPoint = FindNearestNode().transform.position;
+
+                }
+            else
+            {
+                nextPoint = refrigerator.transform.position;
+            }
+            transform.position = Vector3.MoveTowards(transform.position, nextPoint, Time.deltaTime);
 
         }
         else
@@ -263,7 +328,7 @@ public class Entity : MonoBehaviour
             }
 
         }
-
+        UnityEngine.Debug.Log("Pending: Thirst");
         return ProcessState.PENDING;
 
 
@@ -275,8 +340,26 @@ public class Entity : MonoBehaviour
 
         if (!bath.entityNear)
         {
+            var nextPoint = Vector3.one;
+            if (nodes.Count != 0)
+                if (Vector3.Distance(transform.position, FindNearestNode().transform.position) >
+                    Vector3.Distance(transform.position, task.transform.position))
+                {
 
-            transform.position = Vector3.MoveTowards(transform.position, bath.transform.position, Time.deltaTime);
+                    nextPoint = bath.transform.position;
+
+                }
+                else
+                {
+
+                    nextPoint = FindNearestNode().transform.position;
+
+                }
+            else
+            {
+                nextPoint = bath.transform.position;
+            }
+            transform.position = Vector3.MoveTowards(transform.position, nextPoint, Time.deltaTime);
 
         }
         else
@@ -296,7 +379,7 @@ public class Entity : MonoBehaviour
             }
 
         }
-
+        UnityEngine.Debug.Log("Pending: Bath");
         return ProcessState.PENDING;
     }
 
@@ -305,9 +388,30 @@ public class Entity : MonoBehaviour
 
         if (!task.entityNear)
         {
+            var nextPoint = Vector3.one;
+            if (nodes.Count != 0)
+            {
 
-            transform.position = Vector3.MoveTowards(transform.position, task.transform.position, Time.deltaTime);
+                if (Vector3.Distance(transform.position, FindNearestNode().transform.position) >
+                    Vector3.Distance(transform.position, task.transform.position))
+                {
 
+                    nextPoint = task.transform.position;
+
+                }
+                else
+                {
+
+                    nextPoint = FindNearestNode().transform.position;
+
+                }
+            }
+            else
+            {
+                nextPoint = task.transform.position;
+            }
+            transform.position = Vector3.MoveTowards(transform.position, nextPoint, Time.deltaTime);
+            UnityEngine.Debug.Log("Pending: Default Task");
         }
         else
         {

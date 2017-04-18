@@ -20,6 +20,15 @@ public class AI
 
     }
 
+    ~AI()
+    {
+
+        fuzzyEngine = null;
+        AINeedsList = null;
+
+
+    }
+
     //Register a Need in our NeedsList
     public void registerNeed(Need need)
     {
@@ -66,7 +75,7 @@ public class AI
 
         //}
 
-        AINeedsList = fuzzysortedDict.ToDictionary(x => x.Key, x => x.Value); 
+        AINeedsList = fuzzysortedDict.ToDictionary(x => x.Key, x => x.Value);
     }
 
     //Basic update function will be fixed called rate at 60 per second but will decay the needs and fire registered 
@@ -91,9 +100,10 @@ public class AI
 
         }
 
-        else {
+        else
+        {
 
-            ActionPriorityList.Fire(); 
+            ActionPriorityList.Fire();
 
         }
 

@@ -19,7 +19,12 @@ public static class ActionPriorityList
     private static Func<ProcessState> defaultAction;
 
 
+    public static void Clear()
+    {
 
+        ActionList.Clear();
+
+    }
 
     public static void Add(Func<ProcessState> method)
     {
@@ -41,7 +46,7 @@ public static class ActionPriorityList
 
     public static void Fire(Need need = null)
     {
-        ProcessState state; 
+        ProcessState state;
 
         if (ActionList.Count != 0)
         {
@@ -52,7 +57,8 @@ public static class ActionPriorityList
                 state = need.InternalNeedMethod();
 
             }
-            else {
+            else
+            {
 
                 state = ActionList.First()();
             }
